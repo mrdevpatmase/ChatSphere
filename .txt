@@ -1,0 +1,36 @@
+import { useEffect, useState } from "react";
+import useConversation from "../zustand/useConversation.js";
+import axios from "axios"; // ✅ Import axios
+
+function useGetMessage() {
+  const [loading, setLoading] = useState(false);
+  const { messages, setMessage, selectedConversation } = useConversation();
+
+  useEffect(() => {
+    const getMessage = async () => {
+      if (!selectedConversation?._id) {
+        console.log("No selected conversation, skipping API call.");
+        return;
+      }
+
+      setLoading(true);
+      console.log("Fetching messages for conversation:", selectedConversation._id);
+
+      try {
+        const res = await axios.get(`/api/message/get/${selectedConversation._id}`);
+        console.log("Messages received:", res.data); // ✅ Debugging
+        setMessage(res.data);
+      } catch (error) {
+        console.error("Error in getting messages:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    getMessage();
+  }, [selectedConversation, setMessage]);
+
+  return { loading, messages };
+}
+
+export default useGetMessage;
